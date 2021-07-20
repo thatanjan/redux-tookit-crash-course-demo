@@ -4,26 +4,33 @@ import Typography from '@material-ui/core/Typography'
 import IconButton from '@material-ui/core/IconButton'
 import TextField from '@material-ui/core/TextField'
 import Button from '@material-ui/core/Button'
-import { useDispatch } from 'react-redux'
+import CircularProgress from '@material-ui/core/CircularProgress'
+import { useDispatch, useSelector } from 'react-redux'
 
 import AddIcon from '@material-ui/icons/Add'
 import RotateLeftIcon from '@material-ui/icons/RotateLeft'
 
 import List from './components/TodoList'
-import { addTodo, resetList } from './redux/todoSlice'
+import { addTodo, resetList, asyncTodo } from './redux/todoSlice'
 
 function App() {
 	const dispatch = useDispatch()
+	const { loading } = useSelector((state) => state.todo)
 
 	const [todoInput, setTodoInput] = useState('')
 
 	const [showInput, setShowInput] = useState(false)
 
-	const handleSubmit = (event) => {
+	const addNormalTodo = () => {
 		dispatch(addTodo(todoInput))
 		setShowInput(false)
 		setTodoInput('')
-		event.preventDefault()
+	}
+
+	const addAsyncTodo = () => {
+		dispatch(asyncTodo(todoInput))
+		setShowInput(false)
+		setTodoInput('')
 	}
 
 	return (
@@ -49,22 +56,40 @@ function App() {
 						</Grid>
 					</Grid>
 
+					{loading && <CircularProgress style={{ margin: '0 50%' }} />}
+
 					{showInput && (
-						<form onSubmit={handleSubmit}>
+						<>
 							<TextField
 								value={todoInput}
 								onChange={(event) => setTodoInput(event.target.value)}
 								fullWidth
 							/>
-							<Button
-								type='submit'
-								variant='contained'
-								color='primary'
-								style={{ display: 'block', margin: '1rem 0' }}
-							>
-								Add
-							</Button>
-						</form>
+							<Grid container justifyContent='space-between'>
+								<Grid item>
+									<Button
+										type='submit'
+										variant='contained'
+										color='primary'
+										style={{ display: 'block', margin: '1rem 0' }}
+										onClick={() => addNormalTodo()}
+									>
+										Add Normal Todo
+									</Button>
+								</Grid>
+								<Grid item>
+									<Button
+										type='submit'
+										variant='contained'
+										color='secondary'
+										style={{ display: 'block', margin: '1rem 0' }}
+										onClick={() => addAsyncTodo()}
+									>
+										Add Async Todo
+									</Button>
+								</Grid>
+							</Grid>
+						</>
 					)}
 				</Grid>
 			</Grid>
